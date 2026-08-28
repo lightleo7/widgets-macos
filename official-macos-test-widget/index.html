@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="widget">
+            <div class="label">ОТЛАДКА</div>
+            <button id="btn_test">btn?</button>
+            <div id="info"></div>
+        </div>
+        <script src="../../../_libraries/error_handler.js"></script>
+        <script src="../../../_libraries/tauri.js"></script>
+        <script src="../../../_libraries/media.js"></script>
+        <script>
+            const info = document.getElementById("info");
+
+            document.getElementById("btn_test").addEventListener("click", () => {
+              throw new Error("If you see this error message, it means that the error handler and click handling on the widget are working.");
+            });
+
+            document.getElementById("btn_test").addEventListener('mouseover', (event) => {
+              console.log('Курсор вошел в область элемента');
+              document.getElementById("btn_test").style.backgroundColor = 'coral';
+            });
+
+            print = (...args) => {
+                const text = args
+                    .map((value) => {
+                        if (typeof value === "object") {
+                            if (value === null) {
+                                return "null";
+                            }
+
+                            try {
+                                return JSON.stringify(value, null, 2);
+                            } catch {
+                                return String(value);
+                            }
+                        }
+
+                        return String(value);
+                    })
+                    .join(" ");
+
+                info.innerHTML += text + "<br>";
+            };
+            // print("[invoke]: ", tauri.invoke);
+
+            print(Object.keys(window.__TAURI_INTERNALS__).join(", "));
+
+            // print("location:", window.location.href);
+
+            // print(
+            //     "__TAURI__:",
+            //     typeof window.__TAURI__,
+            //     window.__TAURI__
+            // );
+
+            print(
+                "__TAURI_INTERNALS__:",
+                typeof window.__TAURI_INTERNALS__,
+                window.__TAURI_INTERNALS__,
+            );
+
+            // print(
+            //     "invoke:",
+            //     typeof window.__TAURI_INTERNALS__?.invoke
+            // );
+
+            // window.__TAURI_INTERNALS__
+            //     .invoke("get_system_metrics")
+            //     .then(result => {
+            //         print("result:", JSON.stringify(result));
+            //     })
+            //     .catch(error => {
+            //         print("error:", String(error));
+            //     });
+            //
+            // new code here:
+            (async () => {
+                const result = await tauri.invoke("get_system_metrics");
+                print("[sys metrics]: ", result);
+            })();
+
+            print(JSON.stringify(window.__TAURI_INTERNALS__.plugins));
+
+            print(
+                Object.getOwnPropertyNames(window.__TAURI_INTERNALS__).join(
+                    ", ",
+                ),
+            );
+            (async () => {
+              try {
+                  const enabled = await tauri.invoke(
+                      "plugin:media|is_enabled"
+                  );
+              
+                  print("enabled:", enabled);
+              
+                  const metadata = await tauri.invoke(
+                      "plugin:media|get_metadata"
+                  );
+              
+                  // print("metadata:", metadata);
+              } catch (error) {
+                  print("ERROR:", String(error));
+              }
+            })();
+            print("da")
+
+            async function test(name, command) {
+                try {
+                    const result = await tauri.invoke(command);
+            
+                    print(name + ":", JSON.stringify(result));
+                } catch (error) {
+                    print(name + " ERROR:", String(error));
+                }
+            }
+
+            (async () => {
+            // await test(
+            //     "metadata",
+            //     "plugin:media|get_metadata"
+            // );
+            // 
+            // print("duration: ", await media.getMetadata().duration, await media.getMetadata());
+            
+            await test(
+                "playbackInfo",
+                "plugin:media|get_playback_info"
+            );
+            
+            await test(
+                "status",
+                "plugin:media|get_playback_status"
+            );
+            
+            await test(
+                "position",
+                "plugin:media|get_position"
+            );
+            
+            await test(
+                "enabled",
+                "plugin:media|is_enabled"
+            );
+            })();
+
+            // print(
+            //     "listen:",
+            //     typeof window.__TAURI_INTERNALS__.listen
+            // );
+
+            // print(
+            //     "emit:",
+            //     typeof window.__TAURI_INTERNALS__.emit
+            // );
+        </script>
+    </body>
+</html>

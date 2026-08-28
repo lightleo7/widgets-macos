@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Clock Widget</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="widget">
+
+    <div class="label">
+        Сейчас
+    </div>
+
+    <div class="content">
+        <div class="time" id="time">
+            14:01
+        </div>
+
+        <div class="date" id="date">
+            Пятница, 21 августа
+        </div>
+    </div>
+
+</div>
+<script src="../../../_libraries/error_handler.js"></script>
+<script src="../../../_libraries/tauri.js"></script>
+
+<script type="module">
+    const config = await tauri.getSettings();
+    const show_seconds = config.show_seconds;
+
+    function updateClock() {
+        const now = new Date();
+
+        const time = now.toLocaleTimeString("ru-RU", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: show_seconds ? "2-digit" : undefined,
+            hour12: false
+        });
+
+        const date = now.toLocaleDateString("ru-RU", {
+            weekday: "long",
+            day: "numeric",
+            month: "long"
+        });
+
+        document.getElementById("time").textContent = time;
+
+        document.getElementById("date").textContent =
+            date.charAt(0).toUpperCase() + date.slice(1);
+    }
+
+    updateClock();
+
+    setInterval(updateClock, 1000);
+</script>
+
+</body>
+</html>

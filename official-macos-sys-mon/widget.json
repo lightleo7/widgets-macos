@@ -1,0 +1,11 @@
+{
+  "name": "macOS | System monitor",
+  "version": "1.0.0",
+  "author": "lightleo7",
+  "description": "Minimal macOS-style system monitor (RAM and CPU)",
+
+  "default_width": 340,
+  "default_height": 220,
+
+  "interactive": false
+}

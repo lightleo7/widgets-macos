@@ -1,0 +1,20 @@
+{
+  "name": "macOS | Clock",
+  "version": "1.0.0",
+  "author": "lightleo7",
+  "description": "Minimal macOS-style clock",
+
+  "default_width": 340,
+  "default_height": 220,
+
+  "interactive": false,
+
+  "settings": [
+    {
+      "key": "show_seconds",
+      "label": "Show seconds",
+      "type": "switch",
+      "default": true
+    }
+  ]
+}
