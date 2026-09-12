@@ -291,295 +291,176 @@
         <script src="../../../_libraries/tauri.js"></script>
 
         <script>
-            const albumArt =
-                document.getElementById("album-art");
-        
-            const trackName =
-                document.getElementById("track-name");
-        
-            const artistName =
-                document.getElementById("artist-name");
-        
-            const progress =
-                document.getElementById("progress");
-        
-            const currentTime =
-                document.getElementById("current-time");
-        
-            const totalTime =
-                document.getElementById("total-time");
-        
-            const playButton =
-                document.getElementById("btn-play");
-        
-            const previousButton =
-                document.getElementById("btn-prev");
-        
-            const nextButton =
-                document.getElementById("btn-next");
-        
-        
+            const albumArt = document.getElementById("album-art");
+
+            const trackName = document.getElementById("track-name");
+
+            const artistName = document.getElementById("artist-name");
+
+            const progress = document.getElementById("progress");
+
+            const currentTime = document.getElementById("current-time");
+
+            const totalTime = document.getElementById("total-time");
+
+            const playButton = document.getElementById("btn-play");
+
+            const previousButton = document.getElementById("btn-prev");
+
+            const nextButton = document.getElementById("btn-next");
+
             /*
              * ============================================================
              * STATE
              * ============================================================
              */
-        
+
             let currentPosition = 0;
-        
+
             let duration = 0;
-        
+
             let isPlaying = false;
-        
+
             let hasMediaSession = false;
-        
+
             let currentTrackKey = "";
-        
-            let lastAnimationTime =
-                performance.now();
-        
-        
+
+            let lastAnimationTime = performance.now();
+
             /*
              * ============================================================
              * FORMAT TIME
              * ============================================================
              */
-        
+
             function formatTime(seconds) {
-        
-                seconds =
-                    Number(seconds);
-        
-        
-                if (
-                    !Number.isFinite(seconds) ||
-                    seconds < 0
-                ) {
-        
+                seconds = Number(seconds);
+
+                if (!Number.isFinite(seconds) || seconds < 0) {
                     return "0:00";
-        
                 }
-        
-        
-                const totalSeconds =
-                    Math.floor(seconds);
-        
-        
-                const minutes =
-                    Math.floor(
-                        totalSeconds / 60
-                    );
-        
-        
-                const secs =
-                    totalSeconds % 60;
-        
-        
-                return (
-                    `${minutes}:` +
-                    `${String(secs).padStart(2, "0")}`
-                );
-        
+
+                const totalSeconds = Math.floor(seconds);
+
+                const minutes = Math.floor(totalSeconds / 60);
+
+                const secs = totalSeconds % 60;
+
+                return `${minutes}:` + `${String(secs).padStart(2, "0")}`;
             }
-        
-        
+
             /*
              * ============================================================
              * UI: POSITION / PROGRESS
              * ============================================================
              */
-        
+
             function renderProgress() {
-        
-                currentTime.textContent =
-                    formatTime(
-                        currentPosition
-                    );
-        
-        
-                totalTime.textContent =
-                    formatTime(
-                        duration
-                    );
-        
-        
-                let percent =
-                    0;
-        
-        
+                currentTime.textContent = formatTime(currentPosition);
+
+                totalTime.textContent = formatTime(duration);
+
+                let percent = 0;
+
                 if (duration > 0) {
-        
-                    percent =
-                        (
-                            currentPosition /
-                            duration
-                        ) * 100;
-        
+                    percent = (currentPosition / duration) * 100;
                 }
-        
-        
-                percent =
-                    Math.max(
-                        0,
-                        Math.min(
-                            100,
-                            percent
-                        )
-                    );
-        
-        
-                progress.style.width =
-                    `${percent}%`;
-        
+
+                percent = Math.max(0, Math.min(100, percent));
+
+                progress.style.width = `${percent}%`;
             }
-        
-        
+
             /*
              * ============================================================
              * UI: PLAY BUTTON
              * ============================================================
              */
-        
+
             function renderPlaybackState() {
-        
-                playButton.textContent =
-                    isPlaying
-                        ? "❚❚"
-                        : "▶";
-        
+                playButton.textContent = isPlaying ? "❚❚" : "▶";
             }
-        
-        
+
             /*
              * ============================================================
              * UI: NO MEDIA
              * ============================================================
              */
-        
+
             function renderNoMedia() {
-        
-                trackName.textContent =
-                    "Нет активного трека";
-        
-                artistName.textContent =
-                    "—";
-        
-                currentPosition =
-                    0;
-        
-                duration =
-                    0;
-        
-                currentTrackKey =
-                    "";
-        
-                isPlaying =
-                    false;
-        
-        
+                trackName.textContent = "Нет активного трека";
+
+                artistName.textContent = "—";
+
+                currentPosition = 0;
+
+                duration = 0;
+
+                currentTrackKey = "";
+
+                isPlaying = false;
+
                 albumArt.replaceChildren();
-        
-                currentTime.textContent =
-                    "0:00";
-        
-                totalTime.textContent =
-                    "0:00";
-        
-                progress.style.width =
-                    "0%";
-        
+
+                currentTime.textContent = "0:00";
+
+                totalTime.textContent = "0:00";
+
+                progress.style.width = "0%";
+
                 renderPlaybackState();
-        
             }
-        
-        
+
             /*
              * ============================================================
              * ARTWORK
              * ============================================================
              */
-        
+
             function updateArtwork(metadata) {
-        
-                const artworkData =
-                    metadata?.artworkData;
-        
-        
+                const artworkData = metadata?.artworkData;
+
                 if (!artworkData) {
-        
                     albumArt.replaceChildren();
-        
-                    albumArt.textContent =
-                        "♪";
-        
+
+                    albumArt.textContent = "♪";
+
                     return;
-        
                 }
-        
-        
+
                 /*
                  * Не пересоздаём картинку,
                  * если artwork уже отображается.
                  */
-        
-                const artworkKey =
-                    artworkData;
-        
-        
-                if (
-                    albumArt.dataset.artworkKey ===
-                    artworkKey
-                ) {
-        
+
+                const artworkKey = artworkData;
+
+                if (albumArt.dataset.artworkKey === artworkKey) {
                     return;
-        
                 }
-        
-        
-                const image =
-                    new Image();
-        
-        
-                image.src =
-                    artworkData.startsWith(
-                        "data:"
-                    )
-                        ? artworkData
-                        : `data:image/png;base64,${artworkData}`;
-        
-        
-                image.alt =
-                    "Обложка";
-        
-        
-                image.onload =
-                    () => {
-        
-                        albumArt.replaceChildren(
-                            image
-                        );
-        
-                        albumArt.dataset.artworkKey =
-                            artworkKey;
-        
-                    };
-        
-        
-                image.onerror =
-                    () => {
-        
-                        debugError(
-                            new Error(
-                                "Не удалось загрузить artwork"
-                            ),
-                            "updateArtwork()"
-                        );
-        
-                    };
-        
+
+                const image = new Image();
+
+                image.src = artworkData.startsWith("data:")
+                    ? artworkData
+                    : `data:image/png;base64,${artworkData}`;
+
+                image.alt = "Обложка";
+
+                image.onload = () => {
+                    albumArt.replaceChildren(image);
+
+                    albumArt.dataset.artworkKey = artworkKey;
+                };
+
+                image.onerror = () => {
+                    debugError(
+                        new Error("Не удалось загрузить artwork"),
+                        "updateArtwork()",
+                    );
+                };
             }
-        
-        
+
             /*
              * ============================================================
              * METADATA
@@ -593,134 +474,77 @@
              * Position здесь НЕ обновляем постоянно.
              * ============================================================
              */
-        
+
             async function updateMetadata() {
-        
                 try {
-        
-                    const enabled =
-                        await media.isEnabled();
-        
-        
+                    const enabled = await media.isEnabled();
+
                     if (!enabled) {
-        
-                        hasMediaSession =
-                            false;
-        
+                        hasMediaSession = false;
+
                         renderNoMedia();
-        
+
                         return;
-        
                     }
-        
-        
-                    hasMediaSession =
-                        true;
-        
-        
-                    const metadata =
-                        await media.getMetadata();
-        
-        
+
+                    hasMediaSession = true;
+
+                    const metadata = await media.getMetadata();
+
                     if (!metadata) {
-        
                         renderNoMedia();
-        
+
                         return;
-        
                     }
-        
-        
-                    const newTrackKey =
-                        [
-                            metadata.title || "",
-                            metadata.artist || "",
-                            metadata.album || ""
-                        ].join("|");
-        
-        
+
+                    const newTrackKey = [
+                        metadata.title || "",
+                        metadata.artist || "",
+                        metadata.album || "",
+                    ].join("|");
+
                     /*
                      * Если сменился трек —
                      * позицию нужно заново получить
                      * из Windows.
                      */
-        
+
                     const trackChanged =
-                        currentTrackKey !==
-                            "" &&
-                        currentTrackKey !==
-                            newTrackKey;
-        
-        
-                    
+                        currentTrackKey !== "" &&
+                        currentTrackKey !== newTrackKey;
+
                     if (trackChanged) {
-                    
                         currentPosition = 0;
-                    
+
                         await syncPosition();
-                    
                     }
 
-        
-        
-                    currentTrackKey =
-                        newTrackKey;
-        
-        
+                    currentTrackKey = newTrackKey;
+
                     trackName.textContent =
-                        metadata.title ||
-                        "Неизвестный трек";
-        
-        
+                        metadata.title || "Неизвестный трек";
+
                     artistName.textContent =
                         metadata.artist ||
                         metadata.album ||
                         "Неизвестный исполнитель";
-        
-        
-                    const newDuration =
-                        Number(
-                            metadata.duration
-                        );
-        
-        
-                    if (
-                        Number.isFinite(
-                            newDuration
-                        ) &&
-                        newDuration > 0
-                    ) {
-        
-                        duration =
-                            newDuration;
-        
+
+                    const newDuration = Number(metadata.duration);
+
+                    if (Number.isFinite(newDuration) && newDuration > 0) {
+                        duration = newDuration;
                     } else {
-        
-                        duration =
-                            0;
-        
+                        duration = 0;
                     }
-        
-        
-                    updateArtwork(
-                        metadata
-                    );
-        
-        
+
+                    updateArtwork(metadata);
+
                     renderProgress();
-        
                 } catch (error) {
-        
-                    debugError(
-                        error,
-                        "updateMetadata()"
-                    );
-        
+                    debugError(error, "updateMetadata()");
                 }
-        
             }
-        
-        
+
             /*
              * ============================================================
              * REAL POSITION
@@ -728,132 +552,82 @@
              * Это реальная позиция из Windows.
              * ============================================================
              */
-        
-             async function syncPosition() {
-             
-                 try {
-             
-                     if (!hasMediaSession) {
-             
-                         return;
-             
-                     }
-             
-             
-                     const position =
-                         await media.getPosition();
-             
-             
-                     const numericPosition =
-                         Number(position);
-             
-             
-                     if (
-                         !Number.isFinite(
-                             numericPosition
-                         ) ||
-                         numericPosition < 0
-                     ) {
-             
-                         return;
-             
-                     }
-             
-             
-                     /*
-                      * Если трек уже играет
-                      * и Windows внезапно вернул 0,
-                      * не сбрасываем локальный таймер.
-                      *
-                      * Ноль принимаем только если
-                      * текущая позиция тоже около нуля.
-                      */
-             
-                     if (
-                         isPlaying &&
-                         numericPosition === 0 &&
-                         currentPosition > 1
-                     ) {
-             
-                         return;
-             
-                     }
-             
-             
-                     currentPosition =
-                         numericPosition;
-             
-             
-                     if (
-                         duration > 0 &&
-                         currentPosition > duration
-                     ) {
-             
-                         currentPosition =
-                             duration;
-             
-                     }
-             
-             
-                     renderProgress();
-             
-                 } catch (error) {
-             
-                     debugError(
-                         error,
-                         "syncPosition()"
-                     );
-             
-                 }
-             
-             }
-             
+
+            async function syncPosition() {
+                try {
+                    if (!hasMediaSession) {
+                        return;
+                    }
+
+                    const position = await media.getPosition();
+
+                    const numericPosition = Number(position);
+
+                    if (
+                        !Number.isFinite(numericPosition) ||
+                        numericPosition < 0
+                    ) {
+                        return;
+                    }
+
+                    /*
+                     * Если трек уже играет
+                     * и Windows внезапно вернул 0,
+                     * не сбрасываем локальный таймер.
+                     *
+                     * Ноль принимаем только если
+                     * текущая позиция тоже около нуля.
+                     */
+
+                    if (
+                        isPlaying &&
+                        numericPosition === 0 &&
+                        currentPosition > 1
+                    ) {
+                        return;
+                    }
+
+                    currentPosition = numericPosition;
+
+                    if (duration > 0 && currentPosition > duration) {
+                        currentPosition = duration;
+                    }
+
+                    renderProgress();
+                } catch (error) {
+                    debugError(error, "syncPosition()");
+                }
+            }
+
             /*
              * ============================================================
              * PLAYBACK STATUS
              * ============================================================
              */
-        
+
             async function updatePlaybackStatus() {
-        
                 try {
-        
                     if (!hasMediaSession) {
-        
-                        isPlaying =
-                            false;
-        
+                        isPlaying = false;
+
                         renderPlaybackState();
-        
+
                         return;
-        
                     }
-        
-        
-                    const status =
-                        await media.getPlaybackStatus();
-        
-        
+
+                    const status = await media.getPlaybackStatus();
+
                     isPlaying =
                         status === media.Playing ||
                         status === "playing" ||
                         status === "Playing";
-        
-        
+
                     renderPlaybackState();
-        
                 } catch (error) {
-        
-                    debugError(
-                        error,
-                        "updatePlaybackStatus()"
-                    );
-        
+                    debugError(error, "updatePlaybackStatus()");
                 }
-        
             }
-        
-        
+
             /*
              * ============================================================
              * LOCAL ANIMATION LOOP
@@ -867,208 +641,118 @@
              * вызовов Rust.
              * ============================================================
              */
-        
+
             function animationLoop(now) {
-        
-                const deltaSeconds =
-                    (
-                        now -
-                        lastAnimationTime
-                    ) / 1000;
-        
-        
-                lastAnimationTime =
-                    now;
-        
-        
-                if (
-                    hasMediaSession &&
-                    isPlaying &&
-                    duration > 0
-                ) {
-        
-                    currentPosition +=
-                        deltaSeconds;
-        
-        
-                    if (
-                        currentPosition >
-                        duration
-                    ) {
-        
-                        currentPosition =
-                            duration;
-        
+                const deltaSeconds = (now - lastAnimationTime) / 1000;
+
+                lastAnimationTime = now;
+
+                if (hasMediaSession && isPlaying && duration > 0) {
+                    currentPosition += deltaSeconds;
+
+                    if (currentPosition > duration) {
+                        currentPosition = duration;
                     }
-        
-        
+
                     renderProgress();
-        
                 }
-        
-        
-                requestAnimationFrame(
-                    animationLoop
-                );
-        
+
+                requestAnimationFrame(animationLoop);
             }
-        
-        
+
             /*
              * ============================================================
              * BUTTONS
              * ============================================================
              */
-        
-            previousButton.addEventListener(
-                "click",
-                async () => {
-        
-                    try {
-        
-                        await media.previous();
-        
-        
-                        /*
-                         * Даём Windows немного времени
-                         * переключить session.
-                         */
-        
-                        setTimeout(
-                            async () => {
-        
-                                await updateMetadata();
-        
-                                await syncPosition();
-        
-                                await updatePlaybackStatus();
-        
-                            },
-                            300
-                        );
-        
-                    } catch (error) {
-        
-                        debugError(
-                            error,
-                            "media.previous()"
-                        );
-        
-                    }
-        
-                }
-            );
-        
-        
-            nextButton.addEventListener(
-                "click",
-                async () => {
-        
-                    try {
-        
-                        await media.next();
-        
-        
-                        setTimeout(
-                            async () => {
-        
-                                await updateMetadata();
-        
-                                await syncPosition();
-        
-                                await updatePlaybackStatus();
-        
-                            },
-                            300
-                        );
-        
-                    } catch (error) {
-        
-                        debugError(
-                            error,
-                            "media.next()"
-                        );
-        
-                    }
-        
-                }
-            );
-        
-        
-            playButton.addEventListener(
-                "click",
-                async () => {
-        
+
+            previousButton.addEventListener("click", async () => {
+                try {
+                    await media.previous();
+
                     /*
-                     * Пока toggle/play/pause команда
-                     * отдельно не реализована в плагине.
-                     *
-                     * Просто принудительно обновляем
-                     * состояние.
+                     * Даём Windows немного времени
+                     * переключить session.
                      */
-        
-                    await updatePlaybackStatus();
-        
-                    await syncPosition();
-        
+
+                    setTimeout(async () => {
+                        await updateMetadata();
+
+                        await syncPosition();
+
+                        await updatePlaybackStatus();
+                    }, 300);
+                } catch (error) {
+                    debugError(error, "media.previous()");
                 }
-            );
-        
-        
+            });
+
+            nextButton.addEventListener("click", async () => {
+                try {
+                    await media.next();
+
+                    setTimeout(async () => {
+                        await updateMetadata();
+
+                        await syncPosition();
+
+                        await updatePlaybackStatus();
+                    }, 300);
+                } catch (error) {
+                    debugError(error, "media.next()");
+                }
+            });
+
+            playButton.addEventListener("click", async () => {
+                /*
+                 * Пока toggle/play/pause команда
+                 * отдельно не реализована в плагине.
+                 *
+                 * Просто принудительно обновляем
+                 * состояние.
+                 */
+
+                await updatePlaybackStatus();
+
+                await syncPosition();
+            });
+
             /*
              * ============================================================
              * INITIALIZATION
              * ============================================================
              */
-        
+
             async function initializeMusicWidget() {
-        
                 try {
-        
                     await updateMetadata();
-        
+
                     await updatePlaybackStatus();
-        
+
                     await syncPosition();
-        
                 } catch (error) {
-        
-                    debugError(
-                        error,
-                        "initializeMusicWidget()"
-                    );
-        
+                    debugError(error, "initializeMusicWidget()");
                 }
-        
-        
-                requestAnimationFrame(
-                    animationLoop
-                );
-        
+
+                requestAnimationFrame(animationLoop);
             }
-        
-        
+
             initializeMusicWidget();
-        
-        
+
             /*
              * ============================================================
              * BACKGROUND UPDATES
              * ============================================================
              */
-        
+
             /*
              * Metadata.
              *
              * Проверяем смену трека.
              */
-        
-            setInterval(
-                updateMetadata,
-                1500
-            );
-        
-        
+
+            setInterval(updateMetadata, 1500);
+
             /*
              * Реальная позиция.
              *
@@ -1078,21 +762,17 @@
              * Здесь только корректируем
              * накопившуюся погрешность.
              */
-        
+
             // setInterval(
             //     syncPosition,
             //     3000
             // );
-        
-        
+
             /*
              * Проверяем play / pause.
              */
-        
-            setInterval(
-                updatePlaybackStatus,
-                500
-            );
+
+            setInterval(updatePlaybackStatus, 500);
         </script>
     </body>
 </html>

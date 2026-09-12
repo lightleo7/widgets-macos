@@ -1,0 +1,10 @@
+{
+    "name": "macOS | Clock",
+    "version": "1.0.0",
+    "author": "lightleo7",
+    "description": "Apple-style transparent desktop clock",
+    "default_width": 260,
+    "default_height": 120,
+    "interactive": false,
+    "settings": []
+}
