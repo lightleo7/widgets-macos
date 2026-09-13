@@ -155,20 +155,12 @@
         <div class="weather-widget" id="weather-widget">
             <div class="weather-header">
                 <div>
-                    <div class="location" id="location">ПОГОДА</div>
+                    <div class="location" id="location">WEATHER</div>
 
                     <div class="description" id="description">
-                        Получаем данные о погоде
+                        Weather is updating...
                     </div>
                 </div>
-
-                <!--<button
-        class="refresh"
-        id="refresh"
-        title="Обновить"
-      >
-        ↻
-      </button>-->
             </div>
 
             <div class="weather-main">
@@ -178,11 +170,11 @@
             </div>
 
             <div class="weather-footer">
-                <span id="feels-like"> Ощущается: -- </span>
+                <span id="feels-like"> Feels: -- </span>
 
                 <span id="humidity"> 💧 --% </span>
 
-                <span id="wind"> ↗ -- м/с </span>
+                <span id="wind"> ↗ -- m/s </span>
             </div>
         </div>
 
@@ -207,42 +199,65 @@
             };
 
             function getWeatherInfo(code) {
+                // const weatherCodes = {
+                //     0: ["Ясно", "☀️"],
+                //     1: ["Преимущественно ясно", "🌤️"],
+                //     2: ["Переменная облачность", "⛅"],
+                //     3: ["Облачно", "☁️"],
+
+                //     45: ["Туман", "🌫️"],
+                //     48: ["Изморозь", "🌫️"],
+
+                //     51: ["Слабая морось", "🌦️"],
+                //     53: ["Морось", "🌦️"],
+                //     55: ["Сильная морось", "🌧️"],
+
+                //     61: ["Небольшой дождь", "🌦️"],
+                //     63: ["Дождь", "🌧️"],
+                //     65: ["Сильный дождь", "🌧️"],
+
+                //     71: ["Небольшой снег", "🌨️"],
+                //     73: ["Снег", "❄️"],
+                //     75: ["Сильный снег", "❄️"],
+
+                //     80: ["Ливень", "🌦️"],
+                //     81: ["Сильный ливень", "🌧️"],
+                //     82: ["Очень сильный ливень", "⛈️"],
+
+                //     95: ["Гроза", "⛈️"],
+                //     96: ["Гроза с градом", "⛈️"],
+                //     99: ["Сильная гроза с градом", "⛈️"],
+                // };
                 const weatherCodes = {
-                    0: ["Ясно", "☀️"],
-                    1: ["Преимущественно ясно", "🌤️"],
-                    2: ["Переменная облачность", "⛅"],
-                    3: ["Облачно", "☁️"],
-
-                    45: ["Туман", "🌫️"],
-                    48: ["Изморозь", "🌫️"],
-
-                    51: ["Слабая морось", "🌦️"],
-                    53: ["Морось", "🌦️"],
-                    55: ["Сильная морось", "🌧️"],
-
-                    61: ["Небольшой дождь", "🌦️"],
-                    63: ["Дождь", "🌧️"],
-                    65: ["Сильный дождь", "🌧️"],
-
-                    71: ["Небольшой снег", "🌨️"],
-                    73: ["Снег", "❄️"],
-                    75: ["Сильный снег", "❄️"],
-
-                    80: ["Ливень", "🌦️"],
-                    81: ["Сильный ливень", "🌧️"],
-                    82: ["Очень сильный ливень", "⛈️"],
-
-                    95: ["Гроза", "⛈️"],
-                    96: ["Гроза с градом", "⛈️"],
-                    99: ["Сильная гроза с градом", "⛈️"],
+                  0: ["Clear", "☀"],
+                  1: ["Mainly clear", "🌤"],
+                  2: ["Partly cloudy", "⛅"],
+                  3: ["Cloudy", "☁"],
+                  45: ["Fog", "🌫"],
+                  48: ["Depositing rime fog", "🌫"],
+                  51: ["Light drizzle", "🌦"],
+                  53: ["Drizzle", "🌦"],
+                  55: ["Heavy drizzle", "🌧"],
+                  61: ["Slight rain", "🌦"],
+                  63: ["Rain", "🌧"],
+                  65: ["Heavy rain", "🌧"],
+                  71: ["Slight snow", "🌨"],
+                  73: ["Snow", "❄"],
+                  75: ["Heavy snow", "❄"],
+                  80: ["Rain showers", "🌦"],
+                  81: ["Heavy rain showers", "🌧"],
+                  82: ["Violent rain showers", "⛈"],
+                  95: ["Thunderstorm", "⛈"],
+                  96: ["Thunderstorm with hail", "⛈"],
+                  99: ["Heavy thunderstorm with hail", "⛈"],
                 };
 
-                return weatherCodes[code] || ["Неизвестно", "🌡️"];
+                return weatherCodes[code] || ["Unavailable", "🌡️"];
             }
 
             async function loadWeather() {
                 try {
-                    elements.description.textContent = "Обновление...";
+                    elements.description.textContent = "Updating...";
 
                     const url =
                         "https://api.open-meteo.com/v1/forecast" +
@@ -276,20 +291,20 @@
 
                     elements.symbol.textContent = symbol;
 
-                    elements.feelsLike.textContent = `Ощущается как ${Math.round(
+                    elements.feelsLike.textContent = `Feels: ${Math.round(
                         current.apparent_temperature,
                     )}°`;
 
                     elements.humidity.textContent = `💧 ${current.relative_humidity_2m}%`;
 
-                    elements.wind.textContent = `↗ ${current.wind_speed_10m} м/с`;
+                    elements.wind.textContent = `↗ ${current.wind_speed_10m} m/s`;
                 } catch (error) {
                     console.error(error);
 
-                    elements.location.textContent = "Ошибка";
+                    elements.location.textContent = "Error";
 
                     elements.description.textContent =
-                        "Не удалось загрузить погоду";
+                        "Cannot load weather";
 
                     elements.temperature.textContent = "--";
 

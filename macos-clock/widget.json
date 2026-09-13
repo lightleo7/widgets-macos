@@ -14,7 +14,7 @@
       "key": "show_seconds",
       "label": "Show seconds",
       "type": "switch",
-      "default": true
+      "default": false
     }
   ]
 }

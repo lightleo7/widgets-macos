@@ -165,11 +165,11 @@
 
     <body>
         <div class="system-widget">
-            <div class="widget-title">СИСТЕМА</div>
+            <div class="widget-title">SYSTEM</div>
 
             <div class="metrics">
                 <div class="metric">
-                    <div class="metric-label">ПРОЦЕССОР</div>
+                    <div class="metric-label">CPU</div>
 
                     <div class="metric-value">
                         <span id="cpu-value">--</span>
@@ -180,7 +180,7 @@
                 <div class="divider"></div>
 
                 <div class="metric">
-                    <div class="metric-label">ПАМЯТЬ</div>
+                    <div class="metric-label">RAM</div>
 
                     <div class="metric-value">
                         <span id="ram-value">--</span>
@@ -195,7 +195,7 @@
                 <div class="status">
                     <div class="status-dot"></div>
 
-                    <span> Мониторинг </span>
+                    <span> Monitoring </span>
                 </div>
 
                 <span class="updated" id="updated"> -- </span>
@@ -232,7 +232,7 @@
                             `${ram_total_gb.toFixed(1)} GB`;
 
                         updated.textContent = new Date().toLocaleTimeString(
-                            "ru-RU",
+                            "en-US",
                             {
                                 hour: "2-digit",
                                 minute: "2-digit",

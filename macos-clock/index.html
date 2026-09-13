@@ -10,7 +10,7 @@
 
     <body>
         <div class="widget">
-            <div class="label">Сейчас</div>
+            <div class="label">Now</div>
 
             <div class="content">
                 <div class="time" id="time">14:01</div>
@@ -28,14 +28,14 @@
             function updateClock() {
                 const now = new Date();
 
-                const time = now.toLocaleTimeString("ru-RU", {
+                const time = now.toLocaleTimeString("en-US", {
                     hour: "2-digit",
                     minute: "2-digit",
                     second: show_seconds ? "2-digit" : undefined,
                     hour12: false,
                 });
 
-                const date = now.toLocaleDateString("ru-RU", {
+                const date = now.toLocaleDateString("en-US", {
                     weekday: "long",
                     day: "numeric",
                     month: "long",
