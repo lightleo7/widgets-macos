@@ -1,4 +1,4 @@
-# Prism widgets pack
+# macOS widget pack
 
 ![example](screen.png)
 
